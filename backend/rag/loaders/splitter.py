@@ -55,9 +55,7 @@ class DocumentSplitter:
         global_index = 0
 
         for document in documents:
-            document_id = str(
-                document.metadata.get("document_id", "unknown")
-            )
+            document_id = str(document.metadata.get("document_id", "unknown"))
             texts = self._splitter.split_text(document.page_content)
 
             for _, text in enumerate(texts):
