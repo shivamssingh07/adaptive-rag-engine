@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     # Embeddings & reranking (downloaded automatically from HuggingFace)
     # ------------------------------------------------------------------
     embedding_model_name: str = Field(default="sentence-transformers/all-MiniLM-L6-v2")
-    reranker_model_name: str = Field(default="BAAI/bge-reranker-base")
+    reranker_model_name: str = Field(default="")
 
     # ------------------------------------------------------------------
     # Storage paths
