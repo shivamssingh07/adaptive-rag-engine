@@ -36,9 +36,7 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     app_name: str = Field(default="Adaptive RAG Engine")
     app_version: str = Field(default="1.0.0")
-    environment: Literal["development", "staging", "production"] = Field(
-        default="development"
-    )
+    environment: Literal["development", "staging", "production"] = Field(default="development")
     debug: bool = Field(default=False)
 
     # ------------------------------------------------------------------
@@ -70,16 +68,12 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # Embeddings & reranking
     # ------------------------------------------------------------------
-    embedding_model_name: str = Field(
-        default="sentence-transformers/all-MiniLM-L6-v2"
-    )
+    embedding_model_name: str = Field(default="sentence-transformers/all-MiniLM-L6-v2")
 
     # Keep the normal default for local development/tests.
     # Render Free can disable it through:
     # RERANKER_MODEL_NAME=
-    reranker_model_name: str = Field(
-        default="BAAI/bge-reranker-base"
-    )
+    reranker_model_name: str = Field(default="BAAI/bge-reranker-base")
 
     # ------------------------------------------------------------------
     # Storage paths
@@ -97,9 +91,7 @@ class Settings(BaseSettings):
     chunk_overlap: int = Field(default=200, ge=0)
     max_upload_size_mb: int = Field(default=25, gt=0)
 
-    allowed_upload_extensions: str = Field(
-        default=".pdf,.docx,.txt,.md,.csv"
-    )
+    allowed_upload_extensions: str = Field(default=".pdf,.docx,.txt,.md,.csv")
 
     # ------------------------------------------------------------------
     # Retrieval / reranking tuning
@@ -134,11 +126,7 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> list[str]:
         """CORS allow-list parsed from comma-separated setting."""
-        return [
-            origin.strip()
-            for origin in self.cors_origins.split(",")
-            if origin.strip()
-        ]
+        return [origin.strip() for origin in self.cors_origins.split(",") if origin.strip()]
 
     @property
     def allowed_extensions(self) -> frozenset[str]:
