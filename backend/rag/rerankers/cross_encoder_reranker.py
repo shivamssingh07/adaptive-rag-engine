@@ -16,11 +16,15 @@ from __future__ import annotations
 
 import logging
 import threading
+from typing import TYPE_CHECKING
 
 from langchain_core.documents import Document
 
 from backend.config.settings import Settings, get_settings
 from backend.core.exceptions import ExternalServiceError, RetrievalError
+
+if TYPE_CHECKING:
+    from sentence_transformers import CrossEncoder
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +40,10 @@ class CrossEncoderReranker:
                 settings singleton.
         """
         self._settings = settings or get_settings()
-        self._model = None
+        self._model: CrossEncoder | None = None
         self._lock = threading.Lock()
 
-    def _get_model(self):
+    def _get_model(self) -> CrossEncoder:
         """Return the cross-encoder model, loading it on first call.
 
         The sentence-transformers package is imported lazily so that a
@@ -111,7 +115,6 @@ class CrossEncoderReranker:
             logger.info(
                 "Cross-encoder reranking disabled. Returning first-stage retrieval results."
             )
-
             return [(document, 0.0) for document in documents[:k]]
 
         model = self._get_model()
