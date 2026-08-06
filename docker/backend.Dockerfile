@@ -2,7 +2,7 @@
 # Adaptive RAG Engine — Backend (FastAPI) Docker image
 # ==============================================================================
 
-FROM python:3.12-slim AS base
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -23,11 +23,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Application code
+# Copy backend
 COPY backend/ backend/
 
-# Runtime directories
-RUN mkdir -p data/uploads \
+# Create runtime directories
+RUN mkdir -p \
+    data/uploads \
     data/faiss_index \
     data/bm25_index \
     logs
@@ -39,18 +40,13 @@ RUN groupadd --system app \
 
 USER app
 
-# Render provides PORT dynamically.
-# 8000 is used as a local fallback.
+# Render provides PORT automatically
 EXPOSE 8000
 
-# Docker health check
-# Use sh explicitly so ${PORT:-8000} is expanded.
-HEALTHCHECK --interval=30s \
-    --timeout=5s \
-    --start-period=30s \
-    --retries=3 \
-    CMD ["sh", "-c", "curl -f http://localhost:${PORT:-8000}/health || exit 1"]
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Start FastAPI
-# Render provides PORT; locally it falls back to 8000.
+# Render's PORT is used automatically; 8000 is the local fallback.
 CMD ["sh", "-c", "uvicorn backend.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
