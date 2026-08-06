@@ -45,8 +45,7 @@ class CrossEncoderReranker:
 
         if not model_name or not model_name.strip():
             raise ExternalServiceError(
-                "Cross-encoder reranker is disabled because "
-                "RERANKER_MODEL_NAME is empty."
+                "Cross-encoder reranker is disabled because RERANKER_MODEL_NAME is empty."
             )
 
         if self._model is None:
@@ -68,9 +67,7 @@ class CrossEncoderReranker:
                             details={"model": model_name},
                         ) from exc
 
-                    logger.info(
-                        "Cross-encoder reranker model loaded successfully."
-                    )
+                    logger.info("Cross-encoder reranker model loaded successfully.")
 
         return self._model
 
@@ -103,31 +100,22 @@ class CrossEncoderReranker:
 
         if not model_name or not model_name.strip():
             logger.info(
-                "Cross-encoder reranking disabled. "
-                "Returning first-stage retrieval results."
+                "Cross-encoder reranking disabled. Returning first-stage retrieval results."
             )
 
-            return [
-                (document, 0.0)
-                for document in documents[:k]
-            ]
+            return [(document, 0.0) for document in documents[:k]]
 
         # --------------------------------------------------------------
         # Normal reranking mode
         # --------------------------------------------------------------
         model = self._get_model()
 
-        pairs = [
-            (query, document.page_content)
-            for document in documents
-        ]
+        pairs = [(query, document.page_content) for document in documents]
 
         try:
             raw_scores = model.predict(pairs)
         except Exception as exc:  # noqa: BLE001
-            raise RetrievalError(
-                f"Cross-encoder reranking failed: {exc}"
-            ) from exc
+            raise RetrievalError(f"Cross-encoder reranking failed: {exc}") from exc
 
         scored = list(
             zip(
