@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-typecheck:
+    name: Lint, format check, and type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-test.txt
+
+      - name: Ruff lint
+        run: ruff check backend/ frontend/ tests/ --line-length 100
+
+      - name: Ruff format check
+        run: ruff format --check backend/ frontend/ tests/ --line-length 100
+
+      - name: mypy type-check
+        run: mypy backend/
+
+  test:
+    name: Test suite
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        # NOTE: this installs requirements-test.txt, NOT the full
+        # requirements.txt — it deliberately excludes torch,
+        # sentence-transformers, and langchain-huggingface. The test suite
+        # injects fake embeddings/LLM/reranker at the same constructor
+        # seams the code was designed with for testability (see
+        # docs/testing.md), so real model weights are never needed. This
+        # keeps CI fast and avoids needing a GROQ_API_KEY or Tavily
+        # credential as a repository secret.
+        run: pip install -r requirements-test.txt
+
+      - name: Run tests
+        run: pytest --cov-report=xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+
+  docker-build-check:
+    name: Docker build sanity check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml
+        run: docker compose -f docker/docker-compose.yml config --quiet
+
+      - name: Build frontend image
+        # Only the frontend image is built in CI (fast — no torch/faiss).
+        # The backend image is validated by config syntax above; building
+        # it on every CI run would add several minutes for a torch-heavy
+        # image that changes rarely relative to application code — build
+        # it locally with `docker build -f docker/backend.Dockerfile .`
+        # before releases instead.
+        run: docker build -f docker/frontend.Dockerfile -t adaptive-rag-frontend:ci .

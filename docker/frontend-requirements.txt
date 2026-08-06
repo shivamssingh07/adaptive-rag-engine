@@ -1,0 +1,11 @@
+# ==============================================================================
+# Adaptive RAG Engine — Frontend-only dependencies
+#
+# The Streamlit frontend talks to the backend exclusively over HTTP (see
+# frontend/streamlit_app/services/api_client.py) and never imports from
+# backend.*, so it needs only these two packages — not the full
+# requirements.txt (torch, faiss, langgraph, etc.), which would roughly
+# double the frontend image's build time and size for no benefit.
+# ==============================================================================
+streamlit>=1.41.1
+httpx==0.28.1

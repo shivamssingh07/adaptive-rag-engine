@@ -1,0 +1,34 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment secrets
+.env
+
+# Runtime data (persisted indexes, uploads, sessions, logs)
+data/uploads/*
+data/faiss_index/*
+data/bm25_index/*
+data/sessions.db
+logs/*
+!data/uploads/.gitkeep
+!data/faiss_index/.gitkeep
+!data/bm25_index/.gitkeep
+!logs/.gitkeep
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store

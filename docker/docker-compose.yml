@@ -1,0 +1,65 @@
+# ==============================================================================
+# Adaptive RAG Engine — Docker Compose
+#
+# Run from the repository root:
+#   docker compose -f docker/docker-compose.yml up --build
+#
+# Then open:
+#   Frontend (Streamlit):  http://localhost:8501
+#   Backend API docs:      http://localhost:8000/docs
+# ==============================================================================
+
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/backend.Dockerfile
+    image: adaptive-rag-backend:latest
+    container_name: adaptive-rag-backend
+    env_file:
+      - ../.env
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the FAISS/BM25 indexes and uploaded source documents across
+      # container restarts and rebuilds.
+      - ../data:/app/data
+      - ../logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - adaptive-rag-net
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend.Dockerfile
+    image: adaptive-rag-frontend:latest
+    container_name: adaptive-rag-frontend
+    environment:
+      # Talks to the backend over the internal Compose network by service
+      # name, not localhost.
+      API_BASE_URL: http://backend:8000/api/v1
+    ports:
+      - "8501:8501"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    networks:
+      - adaptive-rag-net
+
+networks:
+  adaptive-rag-net:
+    driver: bridge
