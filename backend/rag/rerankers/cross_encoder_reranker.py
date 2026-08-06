@@ -52,8 +52,7 @@ class CrossEncoderReranker:
 
         if not model_name or not model_name.strip():
             raise ExternalServiceError(
-                "Cross-encoder reranker is disabled because "
-                "RERANKER_MODEL_NAME is empty."
+                "Cross-encoder reranker is disabled because RERANKER_MODEL_NAME is empty."
             )
 
         if self._model is None:
@@ -71,8 +70,7 @@ class CrossEncoderReranker:
                         self._model = CrossEncoder(model_name)
                     except Exception as exc:  # noqa: BLE001
                         raise ExternalServiceError(
-                            f"Failed to load reranker model "
-                            f"'{model_name}': {exc}",
+                            f"Failed to load reranker model '{model_name}': {exc}",
                             details={"model": model_name},
                         ) from exc
 
@@ -111,14 +109,10 @@ class CrossEncoderReranker:
 
         if not model_name or not model_name.strip():
             logger.info(
-                "Cross-encoder reranking disabled. "
-                "Returning first-stage retrieval results."
+                "Cross-encoder reranking disabled. Returning first-stage retrieval results."
             )
 
-            return [
-                (document, 0.0)
-                for document in documents[:k]
-            ]
+            return [(document, 0.0) for document in documents[:k]]
 
         model = self._get_model()
         pairs = [(query, doc.page_content) for doc in documents]
@@ -126,9 +120,7 @@ class CrossEncoderReranker:
         try:
             raw_scores = model.predict(pairs)
         except Exception as exc:  # noqa: BLE001
-            raise RetrievalError(
-                f"Cross-encoder reranking failed: {exc}"
-            ) from exc
+            raise RetrievalError(f"Cross-encoder reranking failed: {exc}") from exc
 
         scored = list(
             zip(
