@@ -91,7 +91,7 @@ class FastEmbedEmbeddings(Embeddings):
 
             vector = next(model.query_embed([text]))
 
-            return vector.tolist()
+            return [float(value) for value in vector.tolist()]
 
         except ExternalServiceError:
             raise
