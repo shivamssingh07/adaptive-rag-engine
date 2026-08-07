@@ -20,7 +20,7 @@ from typing import Any
 
 import httpx
 
-DEFAULT_API_BASE_URL = "http://localhost:8000/api/v1"
+DEFAULT_API_BASE_URL = "https://adaptive-rag-engine.onrender.com/api/v1"
 
 
 class APIError(Exception):
